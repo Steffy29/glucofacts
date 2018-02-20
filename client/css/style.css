@@ -1,0 +1,57 @@
+
+body { font: 12px Arial;}
+
+path {
+    stroke: #1912ee;
+    stroke-width: 2;
+    fill: none;
+}
+
+.dot {
+    stroke: #ff3664;
+    stroke-width: 2;
+    fill: #ff3664;
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: grey;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+}
+
+.grid line {
+    stroke: lightgrey;
+    stroke-opacity: 0.7;
+    shape-rendering: crispEdges;
+}
+
+.grid path {
+    stroke-width: 0;
+}
+
+.circle{
+    fill-opacity: 0.65;
+}
+
+.bubble{
+    opacity: 1;
+    transition: opacity 0.3s;
+}
+
+.bubble:hover text{
+    opacity: 1;
+}
+
+.bubble:hover circle{
+    fill-opacity: 1;
+}
+
+.legend rect{
+    fill-opacity: 0.75;
+}
+
+.legend:hover rect{
+    fill-opacity:1;
+}

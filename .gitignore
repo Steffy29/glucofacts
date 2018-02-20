@@ -1,0 +1,6 @@
+node_modules/
+.idea/
+Bayer.db
+export_glycemie.csv
+glycemie.csv
+import.sql
