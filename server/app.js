@@ -108,6 +108,14 @@ apiRouter.route('/glucofacts/bad_glycemy')
         });
     });
 
+apiRouter.route('/glucofacts/measuring_moment')
+    .get(function (req, res) {
+        dbaccess.getMomentOfBloodSugarLevel(function (item) {
+            console.log(item);
+            res.status(200).send(item);
+        });
+    });
+
 app.use('/api', apiRouter);
 
 app.listen(process.env.PORT || 8282);

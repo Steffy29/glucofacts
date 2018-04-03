@@ -54,8 +54,8 @@ DbAccess.getGlycemyPerYear = function (year, writeCallback) {
     });
 };
 
-DbAccess.getGlycemieByMethRef = function(methRef, writeCallback) {
-    let query = 'select concat(date_rel, \' \',time_rel) as date_glycemie, glycemie from Glycemie where meth_ref=\''+ methRef +'\' and glycemie is not null order by date_rel, time_rel';
+DbAccess.getGlycemieByMethRef = function (methRef, writeCallback) {
+    let query = 'select concat(date_rel, \' \',time_rel) as date_glycemie, glycemie from Glycemie where meth_ref=\'' + methRef + '\' and glycemie is not null order by date_rel, time_rel';
     connection.query(query, function (error, results) {
         if (error) throw error;
         let string = JSON.stringify(results);
@@ -64,11 +64,11 @@ DbAccess.getGlycemieByMethRef = function(methRef, writeCallback) {
     });
 };
 
-DbAccess.getGlycemyByMethRef = function(methRef, writeCallback) {
+DbAccess.getGlycemyByMethRef = function (methRef, writeCallback) {
     let response = [];
-    let query = 'select concat(date_rel, \' \',time_rel) as date_glycemie, glycemie from Glycemie where meth_ref=\''+ methRef +'\' and glycemie is not null order by date_rel, time_rel';
-    let queryMax = 'select concat(date_rel, \' \',time_rel) as date_glycemie, max_recommended as glycemie from Glycemie where meth_ref=\''+ methRef +'\' and glycemie is not null order by date_rel, time_rel';
-    let queryMin = 'select concat(date_rel, \' \',time_rel) as date_glycemie, min_recommended as glycemie from Glycemie where meth_ref=\''+ methRef +'\' and glycemie is not null order by date_rel, time_rel';
+    let query = 'select concat(date_rel, \' \',time_rel) as date_glycemie, glycemie from Glycemie where meth_ref=\'' + methRef + '\' and glycemie is not null order by date_rel, time_rel';
+    let queryMax = 'select concat(date_rel, \' \',time_rel) as date_glycemie, max_recommended as glycemie from Glycemie where meth_ref=\'' + methRef + '\' and glycemie is not null order by date_rel, time_rel';
+    let queryMin = 'select concat(date_rel, \' \',time_rel) as date_glycemie, min_recommended as glycemie from Glycemie where meth_ref=\'' + methRef + '\' and glycemie is not null order by date_rel, time_rel';
     connection.query(query, function (error, results) {
         if (error) throw error;
         let string = JSON.stringify(results);
@@ -87,7 +87,7 @@ DbAccess.getGlycemyByMethRef = function(methRef, writeCallback) {
     });
 };
 
-DbAccess.getDangerousGlycemie = function( writeCallback) {
+DbAccess.getDangerousGlycemie = function (writeCallback) {
     let query = 'select concat(date_rel, \' \',time_rel) as date_glycemie, glycemie from Glycemie where before_lunch = 1 and (glycemie < 70 or glycemie > 120) order by date_rel, time_rel';
     connection.query(query, function (error, results) {
         if (error) throw error;
@@ -97,7 +97,7 @@ DbAccess.getDangerousGlycemie = function( writeCallback) {
     });
 };
 
-DbAccess.getDangerousGlycemy = function( writeCallback) {
+DbAccess.getDangerousGlycemy = function (writeCallback) {
     let response = [];
     let query = 'select concat(date_rel, \' \',time_rel) as date_glycemie, glycemie from Glycemie where before_lunch = 1 and (glycemie < 70 or glycemie > 120) order by date_rel, time_rel';
     let queryMax = 'select concat(date_rel, \' \',time_rel) as date_glycemie, max_recommended as glycemie from Glycemie where before_lunch = 1 and (glycemie < 70 or glycemie > 120) order by date_rel, time_rel';
@@ -116,6 +116,49 @@ DbAccess.getDangerousGlycemy = function( writeCallback) {
                 response.push({"min": string});
                 writeCallback(response);
             })
+        });
+    });
+};
+
+DbAccess.getMomentOfBloodSugarLevel = function (writeCallback) {
+    let response = [];
+    let queryBeforeLunch = 'select distinct before_lunch, count(before_lunch) as nbBeforeLunch from Glycemie group by before_lunch';
+    let queryAfterLunch = 'select distinct after_lunch, count(after_lunch) as nbAfterLunch from Glycemie group by after_lunch';
+    let queryNbResults = 'select count(*) as nbResults from Glycemie';
+    connection.query(queryNbResults, function (err, res) {
+        if (err) throw err;
+        let string = JSON.parse(JSON.stringify(res));
+        let nbResults = string[0].nbResults;
+        let nbNonCategorized = 0;
+        let nbBeforeLunch = 0;
+        let nbAfterLunch = 0;
+        console.log(nbResults);
+        connection.query(queryBeforeLunch, function (err, res) {
+            if (err) throw err;
+            string = JSON.parse(JSON.stringify(res));
+            string.forEach(function(before) {
+               if (before.before_lunch === '1') {
+                   nbBeforeLunch = before.nbBeforeLunch;
+               }
+            });
+            connection.query(queryAfterLunch, function (err, res) {
+                if (err) throw err;
+                string = JSON.parse(JSON.stringify(res));
+                string.forEach(function(after) {
+                    if (after.after_lunch === '1') {
+                        nbAfterLunch = after.nbAfterLunch;
+                    }
+                });
+
+                nbNonCategorized = nbResults - (nbBeforeLunch + nbAfterLunch);
+
+                console.log(string, nbNonCategorized, nbBeforeLunch, nbAfterLunch);
+                response.push({"nbResults": nbResults});
+                response.push({"nbBeforeLunch": nbBeforeLunch});
+                response.push({"nbAfterLunch": nbAfterLunch});
+                response.push({"nbNonCategorized": nbNonCategorized});
+                writeCallback(response);
+            });
         });
     });
 };
