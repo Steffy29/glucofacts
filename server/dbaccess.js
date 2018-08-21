@@ -153,10 +153,14 @@ DbAccess.getMomentOfBloodSugarLevel = function (writeCallback) {
                 nbNonCategorized = nbResults - (nbBeforeLunch + nbAfterLunch);
 
                 console.log(string, nbNonCategorized, nbBeforeLunch, nbAfterLunch);
-                response.push({"nbResults": nbResults});
-                response.push({"nbBeforeLunch": nbBeforeLunch});
-                response.push({"nbAfterLunch": nbAfterLunch});
-                response.push({"nbNonCategorized": nbNonCategorized});
+
+                let calcul = 0;
+                calcul = (nbBeforeLunch * 100) / nbResults;
+                response.push({type: "Results Before Lunch", ratio: calcul, color: "#42f450"});
+                calcul = (nbAfterLunch * 100) / nbResults;
+                response.push({type: "Results After Lunch", ratio: calcul, color: "#e2c72b"});
+                calcul = (nbNonCategorized * 100) / nbResults;
+                response.push({type: "Results Non Categorized", ratio: calcul, color: "#19cae5"});
                 writeCallback(response);
             });
         });
